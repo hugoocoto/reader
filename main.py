@@ -34,10 +34,19 @@ def orp_print(l, m, r, scr):
     scr.addstr(y//2, x//2 + 1, r)
     scr.refresh()
 
-def read(text, wait, scr):
+def read(text:str, wait, scr):
+
+    # sanity check
+    text = text.strip().lstrip()
+    while("  " in text): text.replace("  ", " ")
     if (len(text) == 0): return
+
     for c in text.split():
-        if (c.endswith(".")): 
+        if (c.endswith(".") and c.startswith(".")): 
+              # Dots as separators (. . . . .)
+              continue
+
+        elif (c.endswith(".")): 
               orp_print(*orp(c[:-1]), scr); time.sleep(DOT_INC * wait)
         elif (c.endswith(";")): 
               orp_print(*orp(c[:-1]), scr); time.sleep(SC_INC * wait)
@@ -46,7 +55,9 @@ def read(text, wait, scr):
         elif (c.endswith(",")): 
               orp_print(*orp(c[:-1]), scr); time.sleep(CM_INC * wait)
         else:
-            orp_print(*orp(c), scr)
+            l, m, r = orp(c)
+            if (len(m) == 0): continue
+            orp_print(l, m, r, scr)
             time.sleep(wait)
 
 
