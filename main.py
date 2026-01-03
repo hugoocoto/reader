@@ -35,6 +35,7 @@ def orp_print(l, m, r, scr):
     scr.refresh()
 
 def read(text, wait, scr):
+    if (len(text) == 0): return
     for c in text.split():
         if (c.endswith(".")): 
               orp_print(*orp(c[:-1]), scr); time.sleep(DOT_INC * wait)
@@ -60,7 +61,6 @@ def main(stdscr):
         with open(sys.argv.pop(1), "r") as f:
               while(line := f.readline()):
                 read(line, 60.0 / wpm, stdscr);
-        print()
 
 if __name__ == '__main__':
     try:
