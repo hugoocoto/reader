@@ -1,8 +1,10 @@
 import time
 import sys
+import curses
 
 # speed (sleep time)
 wpm = 300
+x, y = 800, 600
 
 # sleep factor for puntuation
 CM_INC = 2 # comma
@@ -22,27 +24,48 @@ def orp(c:str):
 RED = "\033[31m"
 RESET = "\033[0m"
 
-def orp_print(l, m, r):
-        print(f" {l:>10}{RED}{m}{RESET}{r:<10}", end='\r')
+def orp_print(l, m, r, scr):
+    y, x = scr.getmaxyx()
+    curses.flushinp()
+    scr.move(y//2, 0)
+    scr.clrtoeol()   
+    scr.addstr(y//2, x//2 - len(l), l)
+    scr.addstr(y//2, x//2, m, curses.color_pair(1))
+    scr.addstr(y//2, x//2 + 1, r)
+    scr.refresh()
 
-def read(text, wait):
+def read(text, wait, scr):
     for c in text.split():
-        if (c.endswith(".")): orp_print(*orp(c[:-1])); time.sleep(DOT_INC * wait)
-        elif (c.endswith(";")): orp_print(*orp(c[:-1])); time.sleep(SC_INC * wait)
-        elif (c.endswith(":")): orp_print(*orp(c)); time.sleep(CL_INC * wait)
-        elif (c.endswith(",")): orp_print(*orp(c[:-1])); time.sleep(CM_INC * wait)
+        if (c.endswith(".")): 
+              orp_print(*orp(c[:-1]), scr); time.sleep(DOT_INC * wait)
+        elif (c.endswith(";")): 
+              orp_print(*orp(c[:-1]), scr); time.sleep(SC_INC * wait)
+        elif (c.endswith(":")): 
+              orp_print(*orp(c), scr); time.sleep(CL_INC * wait)
+        elif (c.endswith(",")): 
+              orp_print(*orp(c[:-1]), scr); time.sleep(CM_INC * wait)
         else:
-            orp_print(*orp(c))
+            orp_print(*orp(c), scr)
             time.sleep(wait)
 
-def main():
+
+def main(stdscr):
+    curses.use_default_colors()
+    curses.init_pair(1, curses.COLOR_RED, -1)
+    curses.curs_set(0)  
+
     while(len(sys.argv) > 1):
-        orp_print(*orp("x"))
+        orp_print(*orp("x"), stdscr)
         time.sleep(1)
         with open(sys.argv.pop(1), "r") as f:
               while(line := f.readline()):
-                read(line, 60.0 / wpm);
+                read(line, 60.0 / wpm, stdscr);
         print()
 
 if __name__ == '__main__':
-    main()
+    try:
+        curses.wrapper(main)
+    except KeyboardInterrupt:
+        pass
+
+    curses.curs_set(1)  
