@@ -1,7 +1,14 @@
 import time
 import sys
 
+# speed (sleep time)
 wpm = 300
+
+# sleep factor for puntuation
+CM_INC = 2 # comma
+CL_INC = 3 # colon
+SC_INC = 3 # semicolon
+DOT_INC = 4 # dot
 
 def orp(c:str):
     l = len(c)
@@ -20,8 +27,13 @@ def orp_print(l, m, r):
 
 def read(text, wait):
     for c in text.split():
-        orp_print(*orp(c))
-        time.sleep(wait)
+        if (c.endswith(".")): orp_print(*orp(c[:-1])); time.sleep(DOT_INC * wait)
+        elif (c.endswith(";")): orp_print(*orp(c[:-1])); time.sleep(SC_INC * wait)
+        elif (c.endswith(":")): orp_print(*orp(c)); time.sleep(CL_INC * wait)
+        elif (c.endswith(",")): orp_print(*orp(c[:-1])); time.sleep(CM_INC * wait)
+        else:
+            orp_print(*orp(c))
+            time.sleep(wait)
 
 def main():
     while(len(sys.argv) > 1):
